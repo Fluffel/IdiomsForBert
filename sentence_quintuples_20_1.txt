@@ -362,7 +362,7 @@ pull the strings
 Francis pulled strings to get him out of trouble.
 Francis used his influence to get him out of trouble.
 Maria worked in the puppet theater pulling strings all day long. 
-Maria worked in the puppet theater pulling strings all day long. 
+Maria worked in the puppet theater using her influence all day long. 
 
 cut the rug
 Within minutes most of the crowd was cutting the rug. 
@@ -421,8 +421,8 @@ Mom, can people be excited?
 spill the tea
 She loves to spill the tea every now and then. 
 She loves to gossip every now and then. 
-Please, don’t spill the tea when we meet the others. 
-Please, don’t spill the tea when we meet the others.
+When she put down the cup, she spilled the tea.
+When she put down the cup, she gossiped.
 
 hold all the cards
 There’s not much we can do. They seem to hold all the cards.

@@ -17,8 +17,8 @@ He is happy to finally meet people who speak the same language as he does.
 He is happy to finally meet people who have the same opinion as he does. 
 
 spill the beans
-Does Phillip know about our plan?" "Yes, someone must have spilled the beans.
-Does Phillip know about our plan?" "Yes, someone must have revealed the secret.
+Does Phillip know about our plan? Yes, someone must have spilled the beans.
+Does Phillip know about our plan? Yes, someone must have revealed the secret.
 Promise not to spill the beans when in the kitchen. 
 Promise not to reveal the secrets when in the kitchen.
 
@@ -104,10 +104,10 @@ Anna saw the cyclist hitting the road.
 Anna saw the cyclist starting his travel. 
 
 get on board
-We cannot expect other countries to get on board if we don’t set a good example. 
-We cannot expect other countries to join if we don’t set a good example. 
-Don’t be afraid of the water, get on board. 
-Don’t be afraid of the water, join us. 
+We cannot expect other countries to get on board if we don't set a good example. 
+We cannot expect other countries to join if we don't set a good example. 
+Don't be afraid of the water, get on board. 
+Don't be afraid of the water, join us. 
 
 drop ball
 The government seems to have dropped the ball on it.
@@ -134,10 +134,10 @@ Do it or I will twist your arm.
 Do it or I will force you. 
 
 ring a bell
-Her name rings a bell but I can’t remember her face.
-Her name reminds me something but I can’t remember her face.
-It doesn’t happen nowadays that people ring a bell. 
-It doesn’t happen nowadays that people remind you of things. 
+Her name rings a bell but I can't remember her face.
+Her name reminds me something but I can't remember her face.
+It doesn't happen nowadays that people ring a bell. 
+It doesn't happen nowadays that people remind you of things. 
 get to point
 Was she ever going to get to the point?
 Was she ever going to conclude?
@@ -171,8 +171,8 @@ He was also unafraid to have a different opinion.
 Try swimming against the tide. 
 Try having a different opinion. 
 jump on a bandwagon
-I don’t want to look as if I’m jumping on a bandwagon.
-I don’t want to look as if I’m copying others. 
+I don't want to look as if I'm jumping on a bandwagon.
+I don't want to look as if I'm copying others. 
 All the people were jumping on a bandwagon.
 All the people were copying others. 
 take bull by the horns
@@ -242,8 +242,8 @@ Without mentors we have to loose time and do the same thing in each new generati
 Car companies are trying to reinvent the wheel. 
 Car companies are loosing time and doing the same thing.
 run for life
-You’d better run for life when you see a lion. 
-You’d better escape when you see a lion. 
+You'd better run for life when you see a lion. 
+You'd better escape when you see a lion. 
 The company organized run for life in the neighbourhood. 
 The company escaped the neighbourhood. 
 run out of steam

@@ -124,11 +124,11 @@ if __name__ == '__main__':
     model = BertModel.from_pretrained("bert-base-uncased")
     print("Loading tokenizer...")
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-    data = load_sentences_with_names("sentence_quintuples.txt")
+    data = load_sentences_with_names("sentence_quintuples_20_1.txt")
     for sample in data.keys():
         sentence_encodings = get_sentence_encodings(model, tokenizer, data[sample])
-        # embeddings = get_different_tokens_average_embedding(sentence_encodings, tokenizer, data[sample])
-        embeddings = get_pooling_embedding(sentence_encodings)
+        embeddings = get_different_tokens_average_embedding(sentence_encodings, tokenizer, data[sample])
+        # embeddings = get_pooling_embedding(sentence_encodings)
         score, idiomatic_score, non_idiomatic_score = get_sentence_similarity_scores(embeddings)
         # score, idiomatic_score, non_idiomatic_score = get_sentence_similarity_scores(model, tokenizer, data[sample])
         data[sample]['interaction score'] = score

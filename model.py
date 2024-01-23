@@ -93,7 +93,6 @@ def get_different_token_indeces(tokenizer, sentences, offset=1):
             indeces_different_tokens[2*pair + i] = [idx for idx in range(min_identical_range, len(tokenized_sentences[2*pair + i]) + max_identical_range)]
     return indeces_different_tokens
 
-    
 
 def get_different_tokens_average_embedding(sentence_encodings, tokenizer, sentences):
     token_indeces = get_different_token_indeces(tokenizer, sentences)
@@ -118,6 +117,24 @@ def get_sentence_similarity_scores(sentence_embeddings):
     similarity_score = cosine_similarity_non_idiomatic_meaning - cosine_similarity_idiomatic_meaning
     return similarity_score.item(), cosine_similarity_idiomatic_meaning.item(), cosine_similarity_non_idiomatic_meaning.item()
 
+def get_sentence_sim_length(tokenizer, sentences):
+    sentence_pair_sim_lengths = {}
+    diff_token_indeces = get_different_token_indeces(tokenizer, sentences)
+    tokens_s1 = tokenizer.tokenize(sentences[get_sentence_key_from_idx(0)])
+    tokens_s2 = tokenizer.tokenize(sentences[get_sentence_key_from_idx(2)])
+    sentence_pair_sim_lengths[0] = len(tokens_s1) - len(diff_token_indeces[0])
+    sentence_pair_sim_lengths[1] = len(tokens_s2) - len(diff_token_indeces[2])
+    return sentence_pair_sim_lengths
+def get_sentence_sim_length_fract(tokenizer, sentences):
+    sentence_pair_sim_lengths = {}
+    diff_token_indeces = get_different_token_indeces(tokenizer, sentences)
+    tokens_s1 = tokenizer.tokenize(sentences[get_sentence_key_from_idx(0)])
+    tokens_s2 = tokenizer.tokenize(sentences[get_sentence_key_from_idx(2)])
+    avg_diff_token_count_s1 = (len(diff_token_indeces[0]) + len(diff_token_indeces[1])) / 2
+    avg_diff_token_count_s2 = (len(diff_token_indeces[2]) + len(diff_token_indeces[3])) / 2
+    sentence_pair_sim_lengths[0] = avg_diff_token_count_s1 / (len(tokens_s1) - len(diff_token_indeces[0]))
+    sentence_pair_sim_lengths[1] = avg_diff_token_count_s2 / (len(tokens_s2) - len(diff_token_indeces[2]))
+    return sentence_pair_sim_lengths
 
 if __name__ == '__main__':
     print("Loading model...")
@@ -125,16 +142,27 @@ if __name__ == '__main__':
     print("Loading tokenizer...")
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
     data = load_sentences_with_names("sentence_quintuples_20_1.txt")
+    lengths_vs_embedding_val = defaultdict(dict)
+    count = 0
     for sample in data.keys():
+        sentence_pair_sim_lens = get_sentence_sim_length_fract(tokenizer, data[sample])
         sentence_encodings = get_sentence_encodings(model, tokenizer, data[sample])
         # embeddings = get_different_tokens_average_embedding(sentence_encodings, tokenizer, data[sample])
         embeddings = get_pooling_embedding(sentence_encodings)
         score, idiomatic_score, non_idiomatic_score = get_sentence_similarity_scores(embeddings)
         # score, idiomatic_score, non_idiomatic_score = get_sentence_similarity_scores(model, tokenizer, data[sample])
-        data[sample]['interaction score'] = score
-        data[sample]['idiomatic score'] = idiomatic_score
-        data[sample]['non idiomatic score'] = non_idiomatic_score
+        # data[sample]['interaction score'] = score
+        # data[sample]['idiomatic score'] = idiomatic_score
+        # data[sample]['non idiomatic score'] = non_idiomatic_score
+        lengths_vs_embedding_val['score'][count]= idiomatic_score
+        lengths_vs_embedding_val['sim length'][count] = sentence_pair_sim_lens[0]
+        count += 1
+        lengths_vs_embedding_val['score'][count] = non_idiomatic_score
+        lengths_vs_embedding_val['sim length'][count] = sentence_pair_sim_lens[1]
+        count += 1
 
-    dataframe = pd.DataFrame.from_dict(data)
-    write_dataframe_to_json(dataframe, "data_exports/similarity_scores_pooling.json")
+    # dataframe = pd.DataFrame.from_dict(data)
+    # write_dataframe_to_json(dataframe, "data_exports/similarity_scores_pooling.json")
+    df = pd.DataFrame.from_dict(lengths_vs_embedding_val)
+    write_dataframe_to_json(df, "data_exports/len_vs_score_fract.json")
     

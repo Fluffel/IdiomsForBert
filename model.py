@@ -74,7 +74,28 @@ def get_sentence_encodings(model, tokenizer, sentences):
             sentence_encodings[sentence_idx] = output
     return sentence_encodings
 
-def get_different_token_indeces(tokenizer, sentences, offset=1):
+
+def extend_list_indeces(tokenized_sentences, indeces_tokens, extend, offset):
+    for i in range(NUMBER_SENTENCES_PER_SAMPLE):
+        for e in range(extend):
+            new_min_idx = indeces_tokens[i][0] - 1
+            new_max_idx = indeces_tokens[i][-1] + 1
+            match e % 2:
+                case 0:
+                    if new_min_idx >= offset:
+                        indeces_tokens[i].insert(offset, new_min_idx)
+                    else:
+                        if new_max_idx < len(tokenized_sentences[i][offset:]):
+                            indeces_tokens[i].append(new_max_idx)
+                case 1:
+                    if new_max_idx < len(tokenized_sentences[i][offset:]):
+                        indeces_tokens[i].append(new_max_idx)
+                    else:
+                        if new_min_idx >= offset:
+                            indeces_tokens[i].insert(offset, new_min_idx)
+
+
+def get_different_token_indeces(tokenizer, sentences, offset=1, extend=0):
     tokenized_sentences = {}
     indeces_different_tokens = {}
 
@@ -91,11 +112,13 @@ def get_different_token_indeces(tokenizer, sentences, offset=1):
             max_identical_range -= 1
         for i in range(2):
             indeces_different_tokens[2*pair + i] = [idx for idx in range(min_identical_range, len(tokenized_sentences[2*pair + i]) + max_identical_range)]
+    if extend > 0:
+        extend_list_indeces(tokenized_sentences, indeces_different_tokens, extend, offset)
     return indeces_different_tokens
 
 
-def get_different_tokens_average_embedding(sentence_encodings, tokenizer, sentences):
-    token_indeces = get_different_token_indeces(tokenizer, sentences)
+def get_different_tokens_average_embedding(sentence_encodings, tokenizer, sentences, surround_extend=0):
+    token_indeces = get_different_token_indeces(tokenizer, sentences, extend=surround_extend)
     sentences_avg = {}
     for i in range(NUMBER_SENTENCES_PER_SAMPLE):
         sentence_encoding = sentence_encodings[i].last_hidden_state.squeeze() 
@@ -142,27 +165,28 @@ if __name__ == '__main__':
     print("Loading tokenizer...")
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
     data = load_sentences_with_names("sentence_quintuples_20_1.txt")
-    lengths_vs_embedding_val = defaultdict(dict)
-    count = 0
+    # lengths_vs_embedding_val = defaultdict(dict)
+    # count = 0
     for sample in data.keys():
-        sentence_pair_sim_lens = get_sentence_sim_length_fract(tokenizer, data[sample])
+        # sentence_pair_sim_lens = get_sentence_sim_length(tokenizer, data[sample])
         sentence_encodings = get_sentence_encodings(model, tokenizer, data[sample])
-        # embeddings = get_different_tokens_average_embedding(sentence_encodings, tokenizer, data[sample])
-        embeddings = get_pooling_embedding(sentence_encodings)
+        embeddings = get_different_tokens_average_embedding(sentence_encodings, tokenizer, data[sample])
+        # embeddings = get_pooling_embedding(sentence_encodings)
         score, idiomatic_score, non_idiomatic_score = get_sentence_similarity_scores(embeddings)
-        # score, idiomatic_score, non_idiomatic_score = get_sentence_similarity_scores(model, tokenizer, data[sample])
-        # data[sample]['interaction score'] = score
-        # data[sample]['idiomatic score'] = idiomatic_score
-        # data[sample]['non idiomatic score'] = non_idiomatic_score
-        lengths_vs_embedding_val['score'][count]= idiomatic_score
-        lengths_vs_embedding_val['sim length'][count] = sentence_pair_sim_lens[0]
-        count += 1
-        lengths_vs_embedding_val['score'][count] = non_idiomatic_score
-        lengths_vs_embedding_val['sim length'][count] = sentence_pair_sim_lens[1]
-        count += 1
+        data[sample]['interaction score'] = score
+        data[sample]['idiomatic score'] = idiomatic_score
+        data[sample]['non idiomatic score'] = non_idiomatic_score
 
-    # dataframe = pd.DataFrame.from_dict(data)
-    # write_dataframe_to_json(dataframe, "data_exports/similarity_scores_pooling.json")
-    df = pd.DataFrame.from_dict(lengths_vs_embedding_val)
-    write_dataframe_to_json(df, "data_exports/len_vs_score_fract.json")
+
+        # lengths_vs_embedding_val['score'][count]= idiomatic_score
+        # lengths_vs_embedding_val['sim length'][count] = sentence_pair_sim_lens[0]
+        # count += 1
+        # lengths_vs_embedding_val['score'][count] = non_idiomatic_score
+        # lengths_vs_embedding_val['sim length'][count] = sentence_pair_sim_lens[1]
+        # count += 1
+
+    dataframe = pd.DataFrame.from_dict(data)
+    write_dataframe_to_json(dataframe, "data_exports/similarity_scores_diff_tokens_avg.json")
+    # df = pd.DataFrame.from_dict(lengths_vs_embedding_val)
+    # write_dataframe_to_json(df, "data_exports/similarity_scores_pooling.json")
     

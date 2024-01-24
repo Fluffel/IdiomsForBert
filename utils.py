@@ -1,8 +1,6 @@
-# from transformers import BertModel, BertTokenizer
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import defaultdict
 import torch
-# import pandas as pd
 import json
 
 NUMBER_SENTENCES_PER_SAMPLE = 4
@@ -158,6 +156,7 @@ def get_sentence_sim_length(tokenizer, sentences):
     sentence_pair_sim_lengths[0] = len(tokens_s1) - len(diff_token_indeces[0])
     sentence_pair_sim_lengths[1] = len(tokens_s2) - len(diff_token_indeces[2])
     return sentence_pair_sim_lengths
+
 def get_sentence_sim_length_fract(tokenizer, sentences):
     sentence_pair_sim_lengths = {}
     diff_token_indeces = get_different_token_indeces(tokenizer, sentences)

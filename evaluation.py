@@ -1,11 +1,38 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import json
+import numpy as np
 import textwrap
 
 def load_sentence_2_dic():
     with open("data_exports/sample_2_idx.json") as f:
         return json.load(f)
+
+def print_revised_vs_old(source, save):
+    with open("data_exports/" + "similarity_scores_pool.json") as f:
+        df_pool = pd.read_json(f, orient='split')
+    with open("data_exports/" + source) as f:
+        df_pool_r = pd.read_json(f, orient='split')
+    
+    width = 0.3
+    x_labels = df_pool_r.columns
+    wrapped_labels = [textwrap.fill(label, width=10) for label in x_labels]
+    ind = np.arange(len(x_labels))
+    df_pool_values = df_pool[x_labels].loc['interaction score'].values
+    df_pool_r_values = df_pool_r.loc['interaction score'].values
+
+    plt.figure(figsize=(12,10))
+
+    plt.bar(ind, df_pool_values, width, label='Original')
+    plt.bar(ind + width, df_pool_r_values, width, label='Revised')
+    plt.xticks(ind + width / 2, wrapped_labels, rotation=45)
+
+    plt.xlabel('Sample Idiom')
+    plt.ylabel('Interaction Score')
+    plt.title('Comparison of Interaction Scores with Revised Sentences')
+    plt.legend()
+    plt.savefig("evaluation_exports/" + save)
+
 
 def print_len_vs_score():
     f = open("data_exports/len_vs_score.json")
@@ -17,15 +44,13 @@ def print_len_vs_score():
 def print_len_vs_score_fract():
     f = open("data_exports/len_vs_score_fract.json")
     df = pd.read_json(f, orient='split')
-    # file = open("data_exports/df_print", "w")
-    # file.write(df.to_string())
     df.plot.scatter('sim length', 'score')
     plt.savefig('evaluation_exports/len_vs_score_diff_tokens_fract.png')
+    f.close()
 
 def print_len_vs_score_avg():
     f = open("data_exports/len_vs_score_avg.json")
     df = pd.read_json(f, orient='split')
-    # print(df)
     df.plot.scatter('sim length', 'score')
     plt.savefig('evaluation_exports/len_vs_score_diff_tokens.png')
 
@@ -84,6 +109,5 @@ if __name__ == '__main__':
     # print_len_vs_score()
     # print_len_vs_score_avg()
     # print_len_vs_score_fract()
-    data = load_sentence_2_dic()
-    print(data)
+    print_revised_vs_old("similarity_scores_pool_revised_2.json", "comparison_revised_old_simscores_2.png")
 

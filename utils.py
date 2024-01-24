@@ -1,15 +1,17 @@
-from transformers import BertModel, BertTokenizer
+# from transformers import BertModel, BertTokenizer
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import defaultdict
 import torch
-import pandas as pd
-
+# import pandas as pd
+import json
 
 NUMBER_SENTENCES_PER_SAMPLE = 4
 NUMBER_SENTENCE_PAIRS_PER_SAMPLE = 2
 
 def get_sentence_key_from_idx(idx):
     return 'sentence' + str(idx)
+
+
 
 def load_sentences(file_name):
     data = defaultdict(dict)
@@ -59,6 +61,13 @@ def load_sentences_with_names(file_name):
                     next_line = None
             sample_count += 1
     return dict(data)
+
+def create_sentence_to_index_dic(data):
+    sample_2_idx = {}
+    for i, sample in enumerate(data.keys()):
+        sample_2_idx[sample] = i
+    with open("data_exports/sample_2_idx.json", "w") as f:
+        json.dump(sample_2_idx, f, indent=2)
 
 
 def write_dataframe_to_json(dataframe, file):
@@ -127,9 +136,10 @@ def get_different_tokens_average_embedding(sentence_encodings, tokenizer, senten
     return sentences_avg
     
 def get_pooling_embedding(sentence_encodings):
-    for sentence in sentence_encodings.keys():
-        sentence_encodings[sentence] = sentence_encodings[sentence].pooler_output
-    return sentence_encodings
+    sentences_pooling = {}
+    for i in range(NUMBER_SENTENCES_PER_SAMPLE):
+        sentences_pooling[i] = sentence_encodings[i].pooler_output
+    return sentences_pooling
 
 
 
@@ -158,35 +168,3 @@ def get_sentence_sim_length_fract(tokenizer, sentences):
     sentence_pair_sim_lengths[0] = avg_diff_token_count_s1 / (len(tokens_s1) - len(diff_token_indeces[0]))
     sentence_pair_sim_lengths[1] = avg_diff_token_count_s2 / (len(tokens_s2) - len(diff_token_indeces[2]))
     return sentence_pair_sim_lengths
-
-if __name__ == '__main__':
-    print("Loading model...")
-    model = BertModel.from_pretrained("bert-base-uncased")
-    print("Loading tokenizer...")
-    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-    data = load_sentences_with_names("sentence_quintuples_20_1.txt")
-    # lengths_vs_embedding_val = defaultdict(dict)
-    # count = 0
-    for sample in data.keys():
-        # sentence_pair_sim_lens = get_sentence_sim_length(tokenizer, data[sample])
-        sentence_encodings = get_sentence_encodings(model, tokenizer, data[sample])
-        embeddings = get_different_tokens_average_embedding(sentence_encodings, tokenizer, data[sample])
-        # embeddings = get_pooling_embedding(sentence_encodings)
-        score, idiomatic_score, non_idiomatic_score = get_sentence_similarity_scores(embeddings)
-        data[sample]['interaction score'] = score
-        data[sample]['idiomatic score'] = idiomatic_score
-        data[sample]['non idiomatic score'] = non_idiomatic_score
-
-
-        # lengths_vs_embedding_val['score'][count]= idiomatic_score
-        # lengths_vs_embedding_val['sim length'][count] = sentence_pair_sim_lens[0]
-        # count += 1
-        # lengths_vs_embedding_val['score'][count] = non_idiomatic_score
-        # lengths_vs_embedding_val['sim length'][count] = sentence_pair_sim_lens[1]
-        # count += 1
-
-    dataframe = pd.DataFrame.from_dict(data)
-    write_dataframe_to_json(dataframe, "data_exports/similarity_scores_diff_tokens_avg.json")
-    # df = pd.DataFrame.from_dict(lengths_vs_embedding_val)
-    # write_dataframe_to_json(df, "data_exports/similarity_scores_pooling.json")
-    

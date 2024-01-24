@@ -1,8 +1,11 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import json
 import textwrap
 
-
+def load_sentence_2_dic():
+    with open("data_exports/sample_2_idx.json") as f:
+        return json.load(f)
 
 def print_len_vs_score():
     f = open("data_exports/len_vs_score.json")
@@ -78,7 +81,9 @@ def print_i_non_i_scatter_pool():
 if __name__ == '__main__':
     # print_len_vs_score()
     # print_similarity_scores_diff_avg()
-    print_len_vs_score()
-    print_len_vs_score_avg()
-    print_len_vs_score_fract()
+    # print_len_vs_score()
+    # print_len_vs_score_avg()
+    # print_len_vs_score_fract()
+    data = load_sentence_2_dic()
+    print(data)
 

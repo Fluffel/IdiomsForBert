@@ -1,14 +1,15 @@
-from transformers import BertModel, BertTokenizer
+from transformers import BertModel, BertTokenizer, AutoModel, AutoTokenizer
 from collections import defaultdict
 import pandas as pd
+
 
 from utils import *
 
 
-def create_token_diff_avg_0_total_df(sentence_encodings, tokenizer, data, filename):
+def create_token_diff_avg_total_df(sentence_encodings, tokenizer, data, filename, extend=0):
     print("create dataframe for different tokens average...")
     for sample in data.keys():
-        embeddings = get_different_tokens_average_embedding(sentence_encodings[sample], tokenizer, data[sample])
+        embeddings = get_different_tokens_average_embedding(sentence_encodings[sample], tokenizer, data[sample], extend)
         score, idiomatic_score, non_idiomatic_score = get_sentence_similarity_scores(embeddings)
         data[sample]['interaction score'] = score
         data[sample]['idiomatic score'] = idiomatic_score
@@ -70,21 +71,38 @@ def create_len_score_pool_df(sentence_encodings, tokenizer, data, filename):
     dataframe = pd.DataFrame.from_dict(lengths_vs_embedding_val)
     write_dataframe_to_json(dataframe, filename)
 
+def create_len_diff_df(tokenizer, data, filename):
+    sentence_len_diff = {}
+    for sample in data.keys():
+        sentence_lengths = get_sentence_token_lengths(tokenizer, data[sample])
+        sentence_len_diff[sample] = sentence_lengths[2] - sentence_lengths[0]
+    df = pd.DataFrame(sentence_len_diff, index=[0])
+    write_dataframe_to_json(df, filename)
 
-if __name__ == '__main__':
-    print("Loading model...")
-    model = BertModel.from_pretrained("bert-base-uncased")
-    print("Loading tokenizer...")
-    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
-    data = load_sentences_with_names("data/sentences_revised_2.txt")
+def main(model, is_sentence_transformer, data_filename, save_filename):
+    if is_sentence_transformer:
+        print("Loading model...")
+        model = AutoModel.from_pretrained(model)
+        print("Loading tokenizer...")
+        tokenizer = AutoTokenizer.from_pretrained('sentence-transformers/all-mpnet-base-v2')
+    else:
+        print("Loading model...")
+        model = BertModel.from_pretrained("bert-base-uncased")
+        print("Loading tokenizer...")
+        tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+
+
+    data = load_sentences_with_names("data/" + data_filename)
     encodings = {}
     print("Encode data...")
     for sample in data.keys():
         encodings[sample] = get_sentence_encodings(model, tokenizer, data[sample])
     
-    print("---------------Create Dataframes-----------")
-    create_pool_total_df(encodings, tokenizer, data, "data_exports/similarity_scores_pool_revised_2.json")
-    # create_token_diff_avg_0_total_df(encodings, tokenizer, data, "data_exports/similarity_scores_diff_0_avg.json")
-    # create_len_score_different_avg_df(encodings, tokenizer, data, "data_exports/len_vs_score_diff_0_avg.json")
-    # create_len_score_pool_df(encodings, tokenizer, data, "data_exports/len_vs_score_pool.json")
+    # print("---------------Create Dataframes-----------")
+    create_pool_total_df(encodings, tokenizer, data, save_filename)
+    # create_len_diff_df(tokenizer, data, "sentences_diff_lengths_mpnet.json")
+
+
+if __name__ == '__main__':
+    main('sentence-transformers/all-mpnet-base-v2', True, "sentences_max_positive_revised_mpnet.txt", "similarity_scores_max_revised_2_mpnet.json")

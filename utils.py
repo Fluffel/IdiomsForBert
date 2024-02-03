@@ -69,7 +69,7 @@ def create_sentence_to_index_dic(data):
 
 
 def write_dataframe_to_json(dataframe, file):
-    with open(file, '+w') as f:
+    with open("data_exports/" + file, '+w') as f:
         f.write(dataframe.to_json(orient='split'))
 
 def get_sentence_encodings(model, tokenizer, sentences):
@@ -167,3 +167,10 @@ def get_sentence_sim_length_fract(tokenizer, sentences):
     sentence_pair_sim_lengths[0] = avg_diff_token_count_s1 / (len(tokens_s1) - len(diff_token_indeces[0]))
     sentence_pair_sim_lengths[1] = avg_diff_token_count_s2 / (len(tokens_s2) - len(diff_token_indeces[2]))
     return sentence_pair_sim_lengths
+
+def get_sentence_token_lengths(tokenizer, sentences):
+    sentences_lengths = {}
+    for i in range(NUMBER_SENTENCES_PER_SAMPLE):
+        sentences_lengths[i] = len(tokenizer.tokenize(sentences[get_sentence_key_from_idx(i)]))
+
+    return sentences_lengths
